@@ -23,6 +23,23 @@ def sendTelegramMessage(chat_id: int, message_text: str) -> None:
     )
 
 
+def hasUserAccess(user_id: int, required_permissions: tuple) -> bool:
+    user: dict | None = getUser(user_id)
+
+    if not user:
+        return False
+
+    user_access_level_id: int = user['access_level_id']
+    user_permissions = [
+        permission['name'] for permission in getAccessLevelPermissions(user_access_level_id)
+    ]
+    for permission in required_permissions:
+        if permission not in user_permissions:
+            return False
+    
+    return True
+
+
 def access_checker(required_permissions: tuple[str] = None): 
     "Checks the user's access permissions to the function."
 
@@ -53,20 +70,3 @@ def access_checker(required_permissions: tuple[str] = None):
 
         return wrapper
     return container
-
-
-def hasUserAccess(user_id: int, required_permissions: tuple) -> bool:
-    user: dict | None = getUser(user_id)
-
-    if not user:
-        return False
-
-    user_access_level_id: int = user['access_level_id']
-    user_permissions = [
-        permission['name'] for permission in getAccessLevelPermissions(user_access_level_id)
-    ]
-    for permission in required_permissions:
-        if permission not in user_permissions:
-            return False
-    
-    return True
