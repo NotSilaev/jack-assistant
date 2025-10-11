@@ -3,6 +3,9 @@ from aiogram.types.user import User
 
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import qrcode
+import uuid
+import os
 
 
 async def respondEvent(event: Message | CallbackQuery, **kwargs) -> int:
@@ -61,3 +64,17 @@ def getUserName(user: User) -> str:
         user_name = f"Пользователь №{user_id}"
 
     return user_name
+
+
+def generateQRCode(qr_data: str) -> str:
+    dir_path = "media/temporary/qr"
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+    qr_img = qrcode.make(qr_data)
+    qr_img_name = str(uuid.uuid4())
+    qr_img_path = f'{dir_path}/{qr_img_name}.png'
+    qr_img.save(qr_img_path)
+
+    return qr_img_path
+

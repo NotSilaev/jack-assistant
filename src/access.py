@@ -1,7 +1,8 @@
 from config import settings
 
-from database.tables.users import getUser
+from database.tables.users import createUser, getUser
 from database.tables.permissions import getAccessLevelPermissions
+from database.tables.invite_links import getInviteLink
 
 from api.telegram import TelegramAPI
 
@@ -40,6 +41,32 @@ def hasUserAccess(user_id: int, required_permissions: tuple) -> bool:
     return True
 
 
+def checkUserInvitationLink(user_id: int, start_text: str) -> bool:
+    """
+    Checks the user's invitation link and creates it if it is valid.
+
+    Returns `True` if the user was created, `False` if not.
+    """
+
+    try:
+        invite_link_id: str = start_text.split()[1]
+    except IndexError:
+        return
+
+    invite_link: dict = getInviteLink(invite_link_id)
+    if not invite_link:
+        return False
+    
+    createUser(
+        user_id=user_id,
+        access_level_id=invite_link['access_level_id'],
+        car_service_id=invite_link['car_service_id'],
+        phone=invite_link['phone']
+    )
+
+    return True
+
+
 def access_checker(required_permissions: tuple[str] = None): 
     "Checks the user's access permissions to the function."
 
@@ -53,11 +80,22 @@ def access_checker(required_permissions: tuple[str] = None):
 
             # Check user existance
             if not user:
-                message_text = (
-                    "*🧑🏼‍🔧 Бот предназначен для клиентов автосервиса «JackCars»*\n\n"
-                    + "Вы можете обратиться к свободному сервисному консультанту \
-                       в любом из наших сервисов для подключения к системе."
-                )
+                is_user_created = False
+
+                if isinstance(event, Message) and event.text.startswith('/start'):
+                    is_user_created = checkUserInvitationLink(user_id=user_id, start_text=event.text)
+
+                if is_user_created:
+                    message_text = (
+                        "*👋 Рад Вас видеть!*\n\n"
+                        + "🚀 Ассистент активирован."
+                    )
+                else:
+                    message_text = (
+                        "*🧑🏼‍🔧 Бот предназначен для клиентов автосервиса «JackCars»*\n\n"
+                        + "Вы можете обратиться к свободному сервисному консультанту \
+                        в любом из наших сервисов для подключения к системе."
+                    )
                 return sendTelegramMessage(user_id, message_text)
 
             # Check user permissions

@@ -1,6 +1,7 @@
 from config import settings
 
-from handlers import common
+from handlers import common, customers
+from handlers.forms import add_customer_form
 
 from aiogram import Bot, Dispatcher
 
@@ -13,6 +14,10 @@ async def main() -> None:
 
     # Handlers routers
     dp.include_router(common.router)
+    dp.include_router(customers.router)
+
+    # Forms routers
+    dp.include_router(add_customer_form.router)
 
     await dp.start_polling(bot)
 
