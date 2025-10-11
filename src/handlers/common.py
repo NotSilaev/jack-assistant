@@ -1,6 +1,7 @@
 import sys
 sys.path.append("../") # src/
 
+from access import access_checker
 from exceptions import exceptions_catcher
 from utils import respondEvent
 
@@ -16,5 +17,6 @@ router = Router(name=__name__)
 @router.callback_query(F.data == "start")
 @router.message(F.text & (~F.text.startswith("/")))
 @exceptions_catcher()
+@access_checker()
 async def start(event: Message | CallbackQuery) -> None:
     await respondEvent(event, text="Hello, World!")
