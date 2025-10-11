@@ -41,11 +41,14 @@ def fetch(query: str, params: tuple, fetch_type: str, as_dict: bool = False) -> 
                 case _:
                     raise ValueError("Invalid fetch_type")
 
-    if as_dict:
+    if not response:
+        response = list()
+
+    if as_dict and response:
         columns = [desk[0] for desk in cursor.description]
         match fetch_type:
             case "one":
-                response = dict(zip(columns, response))
+                response = [dict(zip(columns, response))]
             case "all":
                 response = [dict(zip(columns, row)) for row in response]
 
