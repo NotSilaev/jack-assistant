@@ -81,13 +81,13 @@ async def add_customer_form_commit(event: CallbackQuery, state: FSMContext) -> N
     car_service_id = user['car_service_id']
     phone: str = customer_data["phone"]
 
-    invite_customer_link: str = generateInviteUserLink(access_level_id, car_service_id, phone)
+    invite_customer_link: str = generateInviteUserLink(access_level_id, car_service_id, phone, user_id)
 
     qr_img_path = generateQRCode(invite_customer_link)
     message_text = (
         "*✅ Пригласительный QR-код создан*\n\n"
         + f"📲 Номер телефона: `{phone}`\n\n"
-        + "🤳🏼 Предоставьте QR клиенту."
+        + "🤳🏼 Предоставьте QR клиенту, он действителен в течение 1-го часа."
     )
 
     photo = FSInputFile(qr_img_path)

@@ -7,15 +7,21 @@ from utils import getCurrentDateTime
 from datetime import datetime
 
 
-def createInviteLink(invite_link_id: str, access_level_id: int, car_service_id: int, phone: str) -> str:
+def createInviteLink(
+    invite_link_id: str, 
+    access_level_id: int, 
+    car_service_id: int, 
+    phone: str, 
+    employee_user_id: int
+) -> str:
     created_at: datetime = getCurrentDateTime()
 
     stmt = """
         INSERT INTO invite_links
-        (id, access_level_id, car_service_id, phone, created_at)
-        VALUES (%s, %s, %s, %s, %s)
+        (id, access_level_id, car_service_id, phone, employee_user_id, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s)
     """
-    params = (invite_link_id, access_level_id, car_service_id, phone, created_at)
+    params = (invite_link_id, access_level_id, car_service_id, phone, employee_user_id, created_at)
 
     execute(stmt, params)
 
@@ -24,7 +30,7 @@ def createInviteLink(invite_link_id: str, access_level_id: int, car_service_id: 
 
 def getInviteLink(invite_link_id: int) -> dict | None:
     query = """
-        SELECT id, access_level_id, car_service_id, phone, created_at
+        SELECT id, access_level_id, car_service_id, phone, employee_user_id, is_activated, created_at
         FROM invite_links
         WHERE id = %s
     """
@@ -38,3 +44,13 @@ def getInviteLink(invite_link_id: int) -> dict | None:
         invite_link = None
 
     return invite_link
+
+
+def setInviteLinkActivated(invite_link_id: int) -> None:
+    stmt = '''
+        UPDATE invite_links
+        SET is_activated = TRUE
+        WHERE id = %s
+    '''
+    params = (invite_link_id, )
+    execute(stmt, params)
