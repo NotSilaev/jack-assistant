@@ -22,7 +22,7 @@ def execute(stmt: str, params: tuple) -> None:
             cursor.execute(stmt, params)
 
 
-def fetch(query: str, params: tuple, fetch_type: str, as_dict: bool = False) -> list:
+def fetch(query: str, params: tuple = None, fetch_type: str = 'one', as_dict: bool = False) -> list:
     """
     Executes an SQL fetch query.
     

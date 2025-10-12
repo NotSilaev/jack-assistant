@@ -24,7 +24,7 @@ def createUser(user_id: int, access_level_id: int, car_service_id: int, phone: s
 
 def getUser(user_id: int) -> dict | None:
     query = """
-        SELECT id, access_level_id, car_service_id, created_at
+        SELECT id, access_level_id, car_service_id, phone, created_at
         FROM users
         WHERE id = %s
     """
@@ -38,3 +38,18 @@ def getUser(user_id: int) -> dict | None:
         user = None
 
     return user
+
+
+def getEmployeesByCarService(car_service_id: int) -> list:
+    employee_access_level_id = 2
+
+    query = """
+        SELECT id, access_level_id, car_service_id, created_at
+        FROM users
+        WHERE access_level_id = %s AND car_service_id = %s
+    """
+    params = (employee_access_level_id, car_service_id)
+
+    car_service_employees: list = fetch(query, params, fetch_type='all', as_dict=True)
+
+    return car_service_employees

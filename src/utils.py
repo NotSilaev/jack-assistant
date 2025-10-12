@@ -78,3 +78,9 @@ def generateQRCode(qr_data: str) -> str:
 
     return qr_img_path
 
+
+def getUUIDStringFromCallData(call_data: str) -> str:
+    call_data_items: list = call_data.split('-')
+    uuid_items: list = call_data_items[1:]
+    uuid_string: str = '-'.join(uuid_items)
+    return uuid_string
