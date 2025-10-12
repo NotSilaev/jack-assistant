@@ -78,8 +78,14 @@ def access_checker(required_permissions: tuple[str] = None):
             
             user: dict | None = getUser(user_id)
 
+            if 'state' in kwargs.keys():
+                state = kwargs['state']
+            else:
+                state = None
+
             # Check user existance
             if not user:
+                if state: await state.clear()
                 is_user_created = False
 
                 if isinstance(event, Message) and event.text.startswith('/start'):
@@ -101,6 +107,7 @@ def access_checker(required_permissions: tuple[str] = None):
             # Check user permissions
             if required_permissions:
                 if not hasUserAccess(user_id, required_permissions):
+                    if state: await state.clear()
                     message_text = "*🚫 У Вас недостаточно прав для доступа к данному разделу*"
                     return sendTelegramMessage(user_id, message_text)
 

@@ -3,6 +3,7 @@ sys.path.append("../../") # src/
 
 from config import settings
 from exceptions import exceptions_catcher
+from access import access_checker
 from utils import respondEvent, generateQRCode
 from database.tables.users import getUser
 from tools.users import generateInviteUserLink
@@ -30,6 +31,7 @@ async def start_add_customer_form(event: CallbackQuery, state: FSMContext) -> No
 
 @router.callback_query(F.data == "customer_phone_state")
 @exceptions_catcher()
+@access_checker(required_permissions=['add_customer'])
 async def customer_phone_state(event: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Customer.phone)
 
@@ -51,6 +53,7 @@ async def customer_phone_state(event: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(Customer.phone)
 @exceptions_catcher()
+@access_checker(required_permissions=['add_customer'])
 async def task_title_process(event: Message, state: FSMContext) -> None:
     phone_pattern = r"^(\+?\d{1,4}[\s\-]?)?(\(?\d{1,4}\)?[\s\-]?)?[\d\s\-]{5,15}$"
     phone: str = event.text
@@ -68,6 +71,7 @@ async def task_title_process(event: Message, state: FSMContext) -> None:
 
 
 @exceptions_catcher()
+@access_checker(required_permissions=['add_customer'])
 async def add_customer_form_commit(event: CallbackQuery, state: FSMContext) -> None:
     user_id: int = event.from_user.id
     user: dict = getUser(user_id)
