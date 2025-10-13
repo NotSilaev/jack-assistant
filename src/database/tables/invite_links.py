@@ -11,17 +11,27 @@ def createInviteLink(
     invite_link_id: str, 
     access_level_id: int, 
     car_service_id: int, 
-    phone: str, 
-    employee_user_id: int
+    employee_user_id: int,
+    phone: str = None, 
+    max_activations: int = 1
 ) -> str:
+    activations = 0
     created_at: datetime = getCurrentDateTime()
 
     stmt = """
         INSERT INTO invite_links
-        (id, access_level_id, car_service_id, phone, employee_user_id, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        (
+            id, access_level_id, car_service_id, 
+            employee_user_id, phone, activations, 
+            max_activations, created_at
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
-    params = (invite_link_id, access_level_id, car_service_id, phone, employee_user_id, created_at)
+    params = (
+        invite_link_id, access_level_id, car_service_id, 
+        employee_user_id, phone, activations, 
+        max_activations, created_at
+    )
 
     execute(stmt, params)
 
@@ -30,7 +40,15 @@ def createInviteLink(
 
 def getInviteLink(invite_link_id: int) -> dict | None:
     query = """
-        SELECT id, access_level_id, car_service_id, phone, employee_user_id, is_activated, created_at
+        SELECT 
+            id, 
+            access_level_id, 
+            car_service_id, 
+            employee_user_id, 
+            phone, 
+            activations,
+            max_activations,
+            created_at
         FROM invite_links
         WHERE id = %s
     """
@@ -46,10 +64,10 @@ def getInviteLink(invite_link_id: int) -> dict | None:
     return invite_link
 
 
-def setInviteLinkActivated(invite_link_id: int) -> None:
+def increaseInviteLinkActivations(invite_link_id: int) -> None:
     stmt = '''
         UPDATE invite_links
-        SET is_activated = TRUE
+        SET activations = activations + 1
         WHERE id = %s
     '''
     params = (invite_link_id, )

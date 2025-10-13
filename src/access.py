@@ -2,14 +2,13 @@ from config import settings
 
 from database.tables.users import createUser, getUser
 from database.tables.permissions import getAccessLevelPermissions
-from database.tables.invite_links import getInviteLink, setInviteLinkActivated
+from database.tables.invite_links import getInviteLink, increaseInviteLinkActivations
 
 from api.telegram import TelegramAPI
 
 from aiogram.types import Message, CallbackQuery
 
 import functools
-from datetime import datetime
 
 
 def sendTelegramMessage(chat_id: int, message_text: str) -> None:
@@ -58,22 +57,19 @@ def checkUserInvitationLink(user_id: int, start_text: str) -> bool:
     if not invite_link:
         return False
     
-    is_activated: bool = invite_link['is_activated']
-    created_at: datetime = invite_link['created_at']
-    
-    now = datetime.now()
-    lifetime_hours = (now - created_at).seconds // 3600
+    activations: int = invite_link['activations']
+    max_activations: int = invite_link['max_activations']
 
-    if is_activated or lifetime_hours >= 1:
+    if activations >= max_activations:
         return False
 
     createUser(
         user_id=user_id,
         access_level_id=invite_link['access_level_id'],
         car_service_id=invite_link['car_service_id'],
-        phone=invite_link['phone']
+        phone=invite_link['phone'] if invite_link['phone'] else None
     )
-    setInviteLinkActivated(invite_link_id)
+    increaseInviteLinkActivations(invite_link_id)
 
     return True
 
