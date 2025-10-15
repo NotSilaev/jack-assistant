@@ -2,6 +2,7 @@ import sys
 sys.path.append("../") # src/
 
 from handlers.forms.add_feedback_request_form import start_add_feedback_request_form
+from database.tables.users import getUsersByAccessLevelAndCarService
 
 from exceptions import exceptions_catcher
 from access import access_checker
@@ -15,7 +16,7 @@ from database.tables.feedback_requests import (
 from database.tables.users import getUser
 from database.tables.contact_methods import getContactMethod
 
-from aiogram import Router, F
+from aiogram import Bot, Router, F
 from aiogram.types import  CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -101,5 +102,31 @@ async def complete_feedback_request(event: CallbackQuery, state: FSMContext) -> 
     await respondEvent(
         event,
         text="*✅ Запрос на обратную связь отмечен как выполненный*",
+        parse_mode="Markdown"
+    )
+
+
+@router.callback_query(F.data.startswith("send_unprocessed_feedback_requests_notification"))
+@exceptions_catcher()
+@access_checker(required_permissions=['send_unprocessed_feedback_requests_notification'])
+async def send_unprocessed_feedback_requests_notification(
+    event: CallbackQuery, 
+    state: FSMContext, bot: Bot
+) -> None:
+    car_service_id: int = int(event.data.split('-')[1])
+
+    employee_access_level = 2
+    car_service_employees: list = getUsersByAccessLevelAndCarService(employee_access_level, car_service_id)    
+
+    for employee in car_service_employees:
+        await bot.send_message(
+            chat_id=employee['id'], 
+            text="*‼️ Имеются необработанные заявки на обратную связь*", 
+            parse_mode="Markdown"
+        )
+
+    await respondEvent(
+        event,
+        text="*📤 Оповещения о необработанных заявках отправлены всем сотрудникам*",
         parse_mode="Markdown"
     )

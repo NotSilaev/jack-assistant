@@ -5,7 +5,7 @@ from config import settings
 from exceptions import exceptions_catcher
 from access import access_checker
 from utils import respondEvent
-from tools.users import sendFeedbackRequestToEmployees
+from tools.feedback_requests import sendFeedbackRequestToEmployees
 
 from database.tables.car_services import getCarServices, getCarService
 from database.tables.contact_methods import getContactMethods, getContactMethod

@@ -3,12 +3,15 @@ from config import settings
 from handlers import common, customers, feedback_requests
 from handlers.forms import add_customer_form, add_feedback_request_form
 
+from scheduler import runSchedule
+
 from aiogram import Bot, Dispatcher
 
 import asyncio
+import threading
 
 
-async def main() -> None:
+async def bot_main() -> None:
     bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
     dp = Dispatcher()
 
@@ -24,8 +27,18 @@ async def main() -> None:
     await dp.start_polling(bot)
 
 
+def runBot():
+    asyncio.run(bot_main())
+
+
+def main():
+    scheduler_thread = threading.Thread(target=runSchedule, daemon=True)
+    scheduler_thread.start()
+    runBot()
+    
+
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        main()
     except (KeyboardInterrupt, RuntimeError):
         print("Bot has been stopped.")

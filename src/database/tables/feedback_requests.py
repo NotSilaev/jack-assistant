@@ -55,6 +55,25 @@ def getFeedbackRequest(feedback_request_id: int) -> dict | None:
     return feedback_request
 
 
+def getUnprocessedFeedbackRequests(car_service_id: int) -> list:
+    query = """
+        SELECT 
+            id, 
+            car_service_id, 
+            contact_method_id, 
+            customer_user_id, 
+            employee_user_id,
+            description, 
+            is_completed, 
+            created_at
+        FROM feedback_requests
+        WHERE (car_service_id = %s) AND ((employee_user_id IS NULL) OR (is_completed IS FALSE))
+    """
+    params = (car_service_id, )
+    unprocessed_feedback_requests: list = fetch(query, params, fetch_type='all', as_dict=True)
+    return unprocessed_feedback_requests
+
+
 def setFeedbackRequestEmployeeUserID(feedback_request_id: int, employee_user_id: int) -> None:
     stmt = '''
         UPDATE feedback_requests

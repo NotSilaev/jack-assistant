@@ -40,15 +40,13 @@ def getUser(user_id: int) -> dict | None:
     return user
 
 
-def getEmployeesByCarService(car_service_id: int) -> list:
-    employee_access_level_id = 2
-
+def getUsersByAccessLevelAndCarService(access_level_id: int, car_service_id: int) -> list:
     query = """
         SELECT id, access_level_id, car_service_id, created_at
         FROM users
         WHERE access_level_id = %s AND car_service_id = %s
     """
-    params = (employee_access_level_id, car_service_id)
+    params = (access_level_id, car_service_id)
 
     car_service_employees: list = fetch(query, params, fetch_type='all', as_dict=True)
 
